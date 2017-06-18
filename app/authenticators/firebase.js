@@ -8,7 +8,7 @@ export default Base.extend({
 
     init: function() {
         if (config.firebase) {
-            this.set('firebase', new Firebase(config.firebase));
+            this.set('firebase', Firebase.initializeApp(config.firebase));
         } else {
             throw new Error("'firebase' not defined in environment");
         }
