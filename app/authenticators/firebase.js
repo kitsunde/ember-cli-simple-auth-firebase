@@ -1,85 +1,80 @@
-import Base from 'ember-simple-auth/authenticators/base';
+import Ember from 'ember';
 import Firebase from 'firebase';
+import Base from 'ember-simple-auth/authenticators/base';
 import config from '../config/environment';
 
-const { Promise } = Ember.RSVP;
+const { RSVP: { Promise }, get } = Ember;
 
 export default Base.extend({
 
-    init: function() {
-        if (config.firebase) {
-            this.set('firebase', Firebase.initializeApp(config.firebase));
-        } else {
-            throw new Error("'firebase' not defined in environment");
-        }
+  init: function() {
+    if (config.firebase) {
+      this.set('firebase', Firebase.initializeApp(config.firebase));
+    } else {
+      throw new Error("'firebase' not defined in environment");
+    }
 
-        this._super();
-    },
-    firebase: null,
-    restore: function(data) {
+    this._super();
+  },
 
-        var _this = this;
+  firebase: null,
 
-        return new Promise(function(resolve, reject) {
+  restore(data) {
+    const token = get(data, 'stsTokenManager.accessToken');
+    const firebase = this.get('firebase');
 
-            if (data.token) {
-
-                _this.get('firebase').authWithCustomToken(data.token, function(error, success) {
-                    Ember.run(function() {
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(success);
-                        }
-                    });
-                });
-
-            } else {
-                reject(new Error('Unable to restore Firebase session: no token found.'));
+    if (token) {
+      return new Promise(function(resolve, reject) {
+        return firebase.auth().onAuthStateChanged(function(user) {
+          Ember.run(function() {
+            if (!user) {
+              return reject(
+                new Error('User not loggined')
+              );
             }
 
+            return resolve(user);
+          });
         });
+      });
 
-    },
+    } else {
+      return Promise.reject(
+        new Error('Unable to restore Firebase session: no token found.')
+      );
+    }
+  },
 
-    persist(data) {
-        this._lastData = data;
-
-        return RSVP.resolve();
-    },
-
-    authenticate: function(options) {
-      var _this = this;
-      if(options.provider === "password" || !options.provider){
-        return _this.get('firebase').auth().signInWithEmailAndPassword(options.email, options.password).then(function(user) {
-            return user.toJSON();
+  authenticate(options) {
+    var _this = this;
+    if(options.provider === "password" || !options.provider){
+      return this.get('firebase')
+        .auth()
+        .signInWithEmailAndPassword(options.email, options.password)
+        .then(function(user) {
+          return user.toJSON();
         });
-      } else {
-        return new Promise(function(resolve, reject) {
-          var callback = function(error, authData) {
-            Ember.run(function() {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(authData);
-              }
-            });
-          };
-          if(options.redirect){
-            _this.get('firebase').authWithOAuthRedirect(options.provider, callback);
+    } else {
+      return new Promise(function(resolve, reject) {
+        var callback = function(error, authData) {
+        Ember.run(function() {
+          if (error) {
+          reject(error);
           } else {
-            _this.get('firebase').authWithOAuthPopup(options.provider, callback)
+          resolve(authData);
           }
         });
-      }
-    },
-    invalidate: function(data) {
-
-        var _this = this;
-
-        return new Promise(function(resolve, reject) {
-            _this.get('firebase').unauth();
-            resolve(data);
-        });
+        };
+        if(options.redirect){
+        _this.get('firebase').authWithOAuthRedirect(options.provider, callback);
+        } else {
+        _this.get('firebase').authWithOAuthPopup(options.provider, callback)
+        }
+      });
     }
+  },
+
+  invalidate: function(data) {
+    return _this.get('firebase').signOut();
+  }
 });
