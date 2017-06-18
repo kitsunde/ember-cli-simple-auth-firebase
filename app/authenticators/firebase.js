@@ -45,7 +45,7 @@ export default Base.extend({
       var _this = this;
       if(options.provider === "password" || !options.provider){
         return new Promise(function(resolve, reject) {
-          _this.get('firebase').signInWithEmailAndPassword(options.email, options.password, function(error, authData) {
+          _this.get('firebase').auth().signInWithEmailAndPassword(options.email, options.password, function(error, authData) {
             Ember.run(function() {
               if (error) {
                 reject(error);
