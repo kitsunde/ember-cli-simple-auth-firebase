@@ -41,10 +41,19 @@ export default Base.extend({
         });
 
     },
+
+    persist(data) {
+        this._lastData = data;
+
+        return RSVP.resolve();
+    },
+
     authenticate: function(options) {
       var _this = this;
       if(options.provider === "password" || !options.provider){
-        return _this.get('firebase').auth().signInWithEmailAndPassword(options.email, options.password);
+        return _this.get('firebase').auth().signInWithEmailAndPassword(options.email, options.password).then(function(user) {
+            return user.toJSON();
+        });
       } else {
         return new Promise(function(resolve, reject) {
           var callback = function(error, authData) {
