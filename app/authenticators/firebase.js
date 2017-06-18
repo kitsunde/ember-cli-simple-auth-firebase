@@ -44,17 +44,7 @@ export default Base.extend({
     authenticate: function(options) {
       var _this = this;
       if(options.provider === "password" || !options.provider){
-        return new Promise(function(resolve, reject) {
-          _this.get('firebase').auth().signInWithEmailAndPassword(options.email, options.password, function(error, authData) {
-            Ember.run(function() {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(authData);
-              }
-            });
-          });
-        });
+        return _this.get('firebase').auth().signInWithEmailAndPassword(options.email, options.password);
       } else {
         return new Promise(function(resolve, reject) {
           var callback = function(error, authData) {
