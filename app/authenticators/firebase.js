@@ -1,9 +1,9 @@
-import Ember from 'ember';
+import { run } from '@ember/runloop';
+import { Promise } from 'rsvp';
+import { get } from '@ember/object';
 import Firebase from 'firebase';
 import Base from 'ember-simple-auth/authenticators/base';
 import config from '../config/environment';
-
-const { RSVP: { Promise }, get } = Ember;
 
 export default Base.extend({
 
@@ -26,7 +26,7 @@ export default Base.extend({
     if (token) {
       return new Promise(function(resolve, reject) {
         return firebase.auth().onAuthStateChanged(function(user) {
-          Ember.run(function() {
+          run(function() {
             if (!user) {
               return reject(
                 new Error('User not loggined')
@@ -57,7 +57,7 @@ export default Base.extend({
     } else {
       return new Promise(function(resolve, reject) {
         var callback = function(error, authData) {
-        Ember.run(function() {
+        run(function() {
           if (error) {
           reject(error);
           } else {
