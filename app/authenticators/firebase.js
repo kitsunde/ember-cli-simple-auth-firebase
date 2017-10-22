@@ -46,8 +46,7 @@ export default Base.extend({
   },
 
   authenticate(options) {
-    var _this = this;
-    if(options.provider === "password" || !options.provider){
+    if (options.provider === "password" || !options.provider) {
       return this.get('firebase')
         .auth()
         .signInWithEmailAndPassword(options.email, options.password)
@@ -55,20 +54,20 @@ export default Base.extend({
           return user.toJSON();
         });
     } else {
-      return new Promise(function(resolve, reject) {
+      return new Promise((resolve, reject) => {
         var callback = function(error, authData) {
-        run(function() {
-          if (error) {
-          reject(error);
-          } else {
-          resolve(authData);
-          }
-        });
+          run(function() {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(authData);
+            }
+          });
         };
-        if(options.redirect){
-        _this.get('firebase').authWithOAuthRedirect(options.provider, callback);
+        if (options.redirect) {
+          this.get('firebase').authWithOAuthRedirect(options.provider, callback);
         } else {
-        _this.get('firebase').authWithOAuthPopup(options.provider, callback)
+          this.get('firebase').authWithOAuthPopup(options.provider, callback)
         }
       });
     }
