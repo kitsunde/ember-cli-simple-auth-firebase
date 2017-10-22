@@ -27,7 +27,7 @@ export default Base.extend({
         return firebase.auth().onAuthStateChanged(run.bind(this, function(user) {
           if (!user) {
             return reject(
-              new Error('User not loggined')
+              new Error('User not logged in.')
             );
           }
 
