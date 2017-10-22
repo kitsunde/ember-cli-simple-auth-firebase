@@ -75,6 +75,6 @@ export default Base.extend({
   },
 
   invalidate: function() {
-    return _this.get('firebase').signOut();
+    return this.get('firebase').signOut();
   }
 });
