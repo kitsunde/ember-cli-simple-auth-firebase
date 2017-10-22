@@ -6,8 +6,7 @@ import Base from 'ember-simple-auth/authenticators/base';
 import config from '../config/environment';
 
 export default Base.extend({
-
-  init: function() {
+  init() {
     if (config.firebase) {
       this.set('firebase', Firebase.initializeApp(config.firebase));
     } else {
@@ -25,17 +24,15 @@ export default Base.extend({
 
     if (token) {
       return new Promise(function(resolve, reject) {
-        return firebase.auth().onAuthStateChanged(function(user) {
-          run(function() {
-            if (!user) {
-              return reject(
-                new Error('User not loggined')
-              );
-            }
+        return firebase.auth().onAuthStateChanged(run.bind(this, function(user) {
+          if (!user) {
+            return reject(
+              new Error('User not loggined')
+            );
+          }
 
-            return resolve(user);
-          });
-        });
+          return resolve(user);
+        }));
       });
 
     } else {
@@ -55,15 +52,13 @@ export default Base.extend({
         });
     } else {
       return new Promise((resolve, reject) => {
-        var callback = function(error, authData) {
-          run(function() {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(authData);
-            }
-          });
-        };
+        const callback = run.bind(this, function(error, authData) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(authData);
+          }
+        });
         if (options.redirect) {
           this.get('firebase').authWithOAuthRedirect(options.provider, callback);
         } else {
