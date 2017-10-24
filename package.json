@@ -21,7 +21,9 @@
   },
   "dependencies": {
     "ember-simple-auth": "^1.4.0",
-    "emberfire": "^2.0.8"
+    "emberfire": "^2.0.8",
+    "ember-cli-babel": "^6.6.0",
+    "ember-data": "*"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",
