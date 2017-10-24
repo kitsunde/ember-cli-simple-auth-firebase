@@ -1,22 +1,11 @@
 import { run } from '@ember/runloop';
 import { Promise } from 'rsvp';
 import { get } from '@ember/object';
-import Firebase from 'firebase';
 import Base from 'ember-simple-auth/authenticators/base';
-import config from '../config/environment';
+import {inject as service} from '@ember/service';
 
 export default Base.extend({
-  init() {
-    if (config.firebase) {
-      this.set('firebase', Firebase.initializeApp(config.firebase));
-    } else {
-      throw new Error("'firebase' not defined in environment");
-    }
-
-    this._super();
-  },
-
-  firebase: null,
+  firebase: service('firebase-app'),
 
   restore(data) {
     const token = get(data, 'stsTokenManager.accessToken');
@@ -43,32 +32,20 @@ export default Base.extend({
   },
 
   authenticate(options) {
+    const auth = this.get('firebase').auth();
     if (options.provider === "password" || !options.provider) {
-      return this.get('firebase')
-        .auth()
-        .signInWithEmailAndPassword(options.email, options.password)
-        .then(function(user) {
-          return user.toJSON();
-        });
+      return auth.signInWithEmailAndPassword(options.email, options.password);
     } else {
-      return new Promise((resolve, reject) => {
-        const callback = run.bind(this, function(error, authData) {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(authData);
-          }
-        });
-        if (options.redirect) {
-          this.get('firebase').authWithOAuthRedirect(options.provider, callback);
-        } else {
-          this.get('firebase').authWithOAuthPopup(options.provider, callback)
-        }
-      });
+      if (options.redirect) {
+        auth.signInWithRedirect(options.provider);
+        return auth.getRedirectResult();
+      } else {
+        return auth.signInWithPopup(options.provider);
+      }
     }
   },
 
   invalidate: function() {
-    return this.get('firebase').signOut();
+    return this.get('firebase').auth().signOut();
   }
 });
