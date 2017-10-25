@@ -1,6 +1,5 @@
 import { run } from '@ember/runloop';
 import { Promise } from 'rsvp';
-import { get } from '@ember/object';
 import Base from 'ember-simple-auth/authenticators/base';
 import { inject as service } from '@ember/service';
 
