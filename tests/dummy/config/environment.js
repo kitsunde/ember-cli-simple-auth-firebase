@@ -4,7 +4,7 @@ module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'dummy',
     environment: environment,
-    baseURL: '/',
+    rootURL: '/',
     locationType: 'auto',
     contentSecurityPolicy: {
       'default-src': "'none'",
@@ -16,7 +16,14 @@ module.exports = function(environment) {
       'style-src': "'self' 'unsafe-inline'",
       'frame-src': "'none'"
     },
-    firebase: 'https://ember-playground.firebaseio.com/',
+    firebase: {
+      apiKey: "AIzaSyC0VnClk3Hj6Mcwq43fECqwNY8RQjhnJ28",
+      authDomain: "ember-cli-simple-auth-firebase.firebaseapp.com",
+      databaseURL: "https://ember-cli-simple-auth-firebase.firebaseio.com",
+      projectId: "ember-cli-simple-auth-firebase",
+      storageBucket: "",
+      messagingSenderId: "257578796300"
+    },
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build

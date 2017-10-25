@@ -9,32 +9,35 @@ ember install ember-cli-simple-auth-firebase
 
 ## Usage
 
-After [configuring Ember Simple Auth](https://github.com/simplabs/ember-simple-auth#the-session), you'll need to make sure your Firebase is configured in `config/environment.js` like so:
+Configure [Ember Simple Auth](https://github.com/simplabs/ember-simple-auth#the-session) and [Emberfire](https://github.com/firebase/emberfire#installation)
 
-`firebase: 'https://<firebase-name>.firebaseio.com/'`
-
-To use it, you can do something like this in one of your controllers:
+The default authenticator uses email/password based auth:
 
 ```javascript
-import Ember from 'ember';
+export default Component.extend({
+  click(){
+    this.get('session').authenticate('authenticator:firebase', {
+      'email': this.get('email'),
+      'password': this.get('password')
+    });
+  }
+});
+```
 
-export default Ember.Controller.extend({
+Using different authenticators:
 
-    actions: {
-        login: function() {
-            this.get('session').authenticate('authenticator:firebase', {
-                'email': this.get('email'),
-                'password': this.get('password')
-            }).then(function() {
-                this.transitionToRoute('index');
-            }.bind(this));
-        },
-        logout: function() {
-            this.get('session').invalidate().then(function() {
-                this.transitionToRoute('login');
-            }.bind(this));
-        }
-    }
+```javascript
+import firebase from 'firebase';
+
+export default Component.extend({
+  click(){
+    const provider = new firebase.auth.FacebookAuthProvider();
+    provider.addScope('user_birthday');
+    
+    this.get('session').authenticate('authenticator:firebase', {
+      provider,
+    });
+  }
 });
 ```
 
