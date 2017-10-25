@@ -2,16 +2,15 @@ import { run } from '@ember/runloop';
 import { Promise } from 'rsvp';
 import { get } from '@ember/object';
 import Base from 'ember-simple-auth/authenticators/base';
-import {inject as service} from '@ember/service';
+import { inject as service } from '@ember/service';
 
 export default Base.extend({
-  firebase: service('firebase-app'),
+  firebaseApp: service(),
 
   restore(data) {
-    const token = get(data, 'stsTokenManager.accessToken');
-    const firebase = this.get('firebase');
+    const firebase = this.get('firebaseApp');
 
-    if (token) {
+    if (data) {
       return new Promise(function(resolve, reject) {
         return firebase.auth().onAuthStateChanged(run.bind(this, function(user) {
           if (!user) {
@@ -32,20 +31,20 @@ export default Base.extend({
   },
 
   authenticate(options) {
-    const auth = this.get('firebase').auth();
+    const auth = this.get('firebaseApp').auth();
     if (options.provider === "password" || !options.provider) {
-      return auth.signInWithEmailAndPassword(options.email, options.password);
+      return auth.signInWithEmailAndPassword(options.email, options.password).then(user => user.uid);
     } else {
       if (options.redirect) {
         auth.signInWithRedirect(options.provider);
         return auth.getRedirectResult();
       } else {
-        return auth.signInWithPopup(options.provider);
+        return auth.signInWithPopup(options.provider).then(provider => provider.user.uid);
       }
     }
   },
 
   invalidate: function() {
-    return this.get('firebase').auth().signOut();
+    return this.get('firebaseApp').auth().signOut();
   }
 });
