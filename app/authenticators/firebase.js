@@ -11,7 +11,8 @@ export default Base.extend({
 
     if (data) {
       return new Promise(function(resolve, reject) {
-        return firebase.auth().onAuthStateChanged(run.bind(this, function(user) {
+        const unsub = firebase.auth().onAuthStateChanged(run.bind(this, function(user) {
+          unsub();
           if (!user) {
             return reject(
               new Error('User not logged in.')
